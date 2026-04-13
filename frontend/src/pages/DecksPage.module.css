@@ -1,0 +1,165 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.heading {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 0.5px solid var(--border-md);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+}
+
+.searchBar svg { width: 14px; height: 14px; stroke: var(--gray-500); flex-shrink: 0; }
+
+.searchBar input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  width: 180px;
+  background: transparent;
+  color: var(--gray-900);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: #fff;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.card:hover { border-color: var(--border-md); background: #fafaf9; }
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.subject {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  color: var(--gray-500);
+}
+
+.deleteBtn svg { width: 14px; height: 14px; }
+.card:hover .deleteBtn { opacity: 1; }
+.deleteBtn:hover { color: var(--red-400) !important; }
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-bottom: 12px;
+}
+
+.masteryBar {
+  height: 4px;
+  background: var(--gray-200);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.masteryFill {
+  height: 100%;
+  background: var(--teal-400);
+  border-radius: 100px;
+  transition: width 0.4s;
+}
+
+.masteryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.badgeTeal {
+  background: var(--teal-50);
+  color: var(--teal-800);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-md);
+}
+
+.badgeAmber {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-md);
+}
+
+.newCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-style: dashed;
+  min-height: 148px;
+  gap: 8px;
+}
+
+.plus { font-size: 28px; color: var(--gray-300); }
+.newLabel { font-size: 13px; color: var(--gray-500); }
+
+.loadingGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+
+.skeleton {
+  height: 148px;
+  background: var(--gray-200);
+  border-radius: var(--radius-lg);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.error, .empty {
+  font-size: 14px;
+  color: var(--gray-500);
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.error { color: var(--red-400); }

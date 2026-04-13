@@ -1,0 +1,135 @@
+.page { max-width: 680px; margin: 0 auto; }
+
+.hero { text-align: center; margin-bottom: 2.5rem; }
+
+.title {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: var(--gray-500);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+.dropZone {
+  border: 1.5px dashed var(--border-md);
+  border-radius: var(--radius-xl);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.dropZone:hover { border-color: var(--teal-400); background: var(--teal-50); }
+.dropZone.dragging { border-color: var(--teal-400); background: var(--teal-50); }
+.dropZone.disabled { cursor: default; }
+.dropZone.disabled:hover { border-color: var(--border-md); background: #fff; }
+
+.dropIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--teal-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.dropIcon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--teal-400);
+}
+
+.dropTitle { font-size: 17px; font-weight: 500; margin-bottom: 6px; }
+.dropSub { font-size: 13px; color: var(--gray-500); margin-bottom: 1.5rem; }
+
+.chooseBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal-400);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.chooseBtn:hover { opacity: 0.88; }
+
+.uploadingState { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--teal-50);
+  border-top-color: var(--teal-400);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.stageText { font-size: 14px; font-weight: 500; color: var(--gray-900); }
+
+.progressBar {
+  width: 240px;
+  height: 5px;
+  background: var(--gray-200);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--teal-400);
+  border-radius: 100px;
+  transition: width 0.3s;
+}
+
+.progressPct { font-size: 12px; color: var(--gray-500); }
+
+.error {
+  text-align: center;
+  font-size: 13px;
+  color: var(--red-400);
+  margin-bottom: 1rem;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 2rem;
+}
+
+.featCard {
+  background: #fff;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.1rem;
+}
+
+.featLabel {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+}
+
+.featCard p { font-size: 13px; line-height: 1.55; }
