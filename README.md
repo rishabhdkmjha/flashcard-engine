@@ -1,126 +1,175 @@
-# Flashcard Engine
+# Flashcard Engine 🧠
 
-AI-powered flashcard app built for the Cuemath Build Challenge. Upload any PDF and get a smart, practice-ready deck with spaced repetition.
+> Built for the **Cuemath Build Challenge — Problem 1: The Flashcard Engine**
 
-## Stack
+AI-powered flashcard app that turns any PDF into a smart, practice-ready study deck with spaced repetition.
 
-- **Frontend:** React + Vite → deployed on Vercel
-- **Backend:** Python FastAPI → deployed on Railway
-- **Database:** PostgreSQL via Supabase
-- **AI:** Anthropic Claude API (server-side only)
-- **Spaced Repetition:** SM-2 algorithm
+## 🌐 Live Demo
+
+| | URL |
+|---|---|
+| **Frontend** | https://flashcard-engine-beta.vercel.app |
+| **Backend API** | https://flashcard-engine-api-ceza.onrender.com |
+| **Health Check** | https://flashcard-engine-api-ceza.onrender.com/health |
 
 ---
 
-## Local Development
+## ✨ Features
 
-### 1. Clone and set up backend
+### 1. Ingestion Quality
+Upload any PDF — lecture notes, textbooks, research papers. The AI (Groq + Llama 3.3 70B) reads deeply and generates cards covering:
+- Key definitions
+- Conceptual relationships
+- Edge cases
+- Worked examples
+
+Cards feel like they were written by a great teacher, not blindly scraped by a bot.
+
+### 2. Spaced Repetition (SM-2 Algorithm)
+Every card is scheduled individually using the SM-2 algorithm:
+- Rate each card: **Again / Hard / Good / Easy**
+- Cards you struggle with come back sooner
+- Cards you know well fade into the background
+- Leitner box system (Box 1–5) visualizes your progress
+
+### 3. Progress Tracking
+- Mastery percentage per deck
+- Leitner box distribution across all cards
+- Cards mastered vs shaky vs struggling
+- Per-deck mastery breakdown
+
+### 4. Deck Management
+- Upload multiple PDFs, each becomes its own deck
+- Search and filter decks
+- See due card count and last studied time
+- Delete decks you no longer need
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React + Vite → Vercel |
+| Backend | Python FastAPI → Render |
+| AI | Groq API (Llama 3.3 70B) |
+| Database | SQLite (local) / PostgreSQL (production) |
+| PDF Parsing | pdfplumber |
+| Spaced Repetition | SM-2 Algorithm |
+
+---
+
+## 🏗 Architecture
+
+```
+flashcard-engine/
+├── backend/                  ← FastAPI (Python) → Render
+│   ├── main.py               # All API routes
+│   ├── sm2.py                # SM-2 spaced repetition algorithm
+│   ├── pdf_parser.py         # PDF text extraction & chunking
+│   ├── card_generator.py     # Groq AI card generation
+│   ├── database.py           # SQLAlchemy async models
+│   ├── config.py             # Environment settings
+│   └── requirements.txt
+└── frontend/                 ← React + Vite → Vercel
+    └── src/
+        ├── pages/
+        │   ├── UploadPage.jsx
+        │   ├── DecksPage.jsx
+        │   ├── StudyPage.jsx
+        │   └── ProgressPage.jsx
+        └── api/
+            └── client.js
+```
+
+---
+
+## 🚀 API Reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/health` | Health check |
+| POST | `/decks/upload` | Upload PDF, generate cards |
+| GET | `/decks` | List all decks with mastery stats |
+| GET | `/decks/:id` | Single deck detail |
+| DELETE | `/decks/:id` | Delete deck and all its cards |
+| GET | `/decks/:id/cards/due` | Get due cards for study session |
+| PATCH | `/cards/:id/review` | Submit rating (again/hard/good/easy) |
+| GET | `/progress/summary` | Global progress stats |
+
+---
+
+## 💻 Local Development
+
+### Backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+venv\Scripts\activate.bat        # Windows
+# source venv/bin/activate       # Mac/Linux
+
 pip install -r requirements.txt
+pip install aiosqlite openai
+
 cp .env.example .env
-# Edit .env with your keys
-```
+# Fill in your .env:
+# GROK_API_KEY=gsk_your_groq_key_here
+# DATABASE_URL=sqlite+aiosqlite:///./flashcards.db
+# ALLOWED_ORIGINS=http://localhost:5173
 
-### 2. Set up database (Supabase)
-
-1. Create a free project at https://supabase.com
-2. Copy the **Connection string** (URI format) from Settings → Database
-3. Paste it as `DATABASE_URL` in `backend/.env`
-   - Make sure the URL starts with `postgresql+asyncpg://`
-
-### 3. Run backend
-
-```bash
-cd backend
 uvicorn main:app --reload --port 8000
 ```
 
-Tables are created automatically on first startup.
-
-### 4. Set up frontend
+### Frontend
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env
-# VITE_API_URL=http://localhost:8000
-npm run dev
-```
 
-Open http://localhost:5173
+# Create .env file:
+# VITE_API_URL=http://localhost:8000
+
+npm run dev
+# Open http://localhost:5173
+```
 
 ---
 
-## Deployment
+## 🌍 Deployment
 
-### Backend → Railway
+### Backend → Render (Free)
 
 1. Push repo to GitHub
-2. Go to https://railway.app → New Project → Deploy from GitHub
-3. Select the `backend/` folder as root
-4. Set environment variables in Railway dashboard:
-   - `ANTHROPIC_API_KEY`
-   - `DATABASE_URL`
-   - `ALLOWED_ORIGINS` (your Vercel URL, e.g. `https://your-app.vercel.app`)
-5. Railway auto-deploys. Note your Railway URL.
+2. Go to https://render.com → New Web Service
+3. Connect GitHub repo
+4. Settings:
+   - Root Directory: `backend`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. Add environment variables:
+   - `GROK_API_KEY` = your Groq API key
+   - `DATABASE_URL` = your database URL
+   - `ALLOWED_ORIGINS` = your Vercel frontend URL
 
-### Frontend → Vercel
+### Frontend → Vercel (Free)
 
 ```bash
 cd frontend
 npm install -g vercel
 vercel
-```
-
-When prompted, set:
-- `VITE_API_URL` = your Railway backend URL (e.g. `https://flashcard-api.railway.app`)
-
-Redeploy after setting env vars:
-```bash
+vercel env add VITE_API_URL   # set to your Render URL
 vercel --prod
 ```
 
 ---
 
-## Project Structure
+## 🔐 Security
 
-```
-flashcard-engine/
-├── backend/
-│   ├── main.py           # FastAPI routes
-│   ├── sm2.py            # Spaced repetition algorithm
-│   ├── pdf_parser.py     # PDF text extraction
-│   ├── card_generator.py # Anthropic API card generation
-│   ├── database.py       # SQLAlchemy models + async engine
-│   ├── config.py         # Pydantic settings
-│   ├── requirements.txt
-│   └── railway.toml      # Railway deploy config
-└── frontend/
-    ├── src/
-    │   ├── App.jsx
-    │   ├── pages/
-    │   │   ├── UploadPage.jsx
-    │   │   ├── DecksPage.jsx
-    │   │   ├── StudyPage.jsx
-    │   │   └── ProgressPage.jsx
-    │   └── api/
-    │       └── client.js
-    ├── index.html
-    └── vite.config.js
-```
+- AI API keys are stored only as server-side environment variables
+- Keys are never exposed to the browser or frontend code
+- All AI calls are made from the backend only
+- CORS configured to allow only the frontend origin
 
-## API Reference
+---
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/decks/upload` | Upload PDF, generate cards |
-| GET | `/decks` | List all decks with mastery stats |
-| GET | `/decks/:id` | Single deck detail |
-| DELETE | `/decks/:id` | Delete deck and cards |
-| GET | `/decks/:id/cards/due` | Due cards for study session |
-| PATCH | `/cards/:id/review` | Submit rating (again/hard/good/easy) |
-| GET | `/progress/summary` | Global progress stats |
