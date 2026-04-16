@@ -1,6 +1,7 @@
 import json
 import uuid
-from openai import OpenAI
+import time
+from openai import OpenAI, RateLimitError
 from config import settings
 from pdf_parser import ContentChunk
 
@@ -39,22 +40,42 @@ Return ONLY valid JSON with no markdown:
 {"title": "...", "subject": "..."}"""
 
 
+def call_groq_with_retry(messages: list, retries: int = 3, wait: int = 10) -> str:
+    for attempt in range(retries):
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=messages,
+            )
+            return response.choices[0].message.content.strip()
+        except RateLimitError:
+            if attempt < retries - 1:
+                print(f"Rate limited, waiting {wait}s before retry {attempt + 2}/{retries}")
+                time.sleep(wait)
+            else:
+                raise
+        except Exception as e:
+            print(f"Groq error: {e}")
+            raise
+
+
+def parse_json_response(raw: str) -> dict:
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        raw = parts[1] if len(parts) > 1 else raw
+        if raw.startswith("json"):
+            raw = raw[4:]
+    return json.loads(raw.strip())
+
+
 async def generate_cards_for_chunk(chunk: ContentChunk) -> list[dict]:
     try:
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": f"Generate flashcards from this content:\n\n{chunk.text}"},
-            ],
-        )
-        raw = response.choices[0].message.content.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        raw = raw.strip()
-        parsed = json.loads(raw)
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"Generate flashcards from this content:\n\n{chunk.text}"},
+        ]
+        raw = call_groq_with_retry(messages)
+        parsed = parse_json_response(raw)
         cards = parsed.get("cards", [])
         return [
             {
@@ -67,34 +88,28 @@ async def generate_cards_for_chunk(chunk: ContentChunk) -> list[dict]:
             if card.get("front") and card.get("back")
         ]
     except Exception as e:
-        print(f"Card generation error: {e}")
+        print(f"Card generation error on chunk: {e}")
         return []
 
 
 async def generate_all_cards(chunks: list[ContentChunk]) -> list[dict]:
     all_cards = []
-    for chunk in chunks:
+    for i, chunk in enumerate(chunks):
         cards = await generate_cards_for_chunk(chunk)
         all_cards.extend(cards)
+        if i < len(chunks) - 1:
+            time.sleep(2)
     return all_cards
 
 
 async def infer_deck_metadata(first_chunk: ContentChunk) -> dict:
     try:
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": TITLE_PROMPT},
-                {"role": "user", "content": first_chunk.text[:800]},
-            ],
-        )
-        raw = response.choices[0].message.content.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        raw = raw.strip()
-        data = json.loads(raw)
+        messages = [
+            {"role": "system", "content": TITLE_PROMPT},
+            {"role": "user", "content": first_chunk.text[:800]},
+        ]
+        raw = call_groq_with_retry(messages)
+        data = parse_json_response(raw)
         return {
             "title": data.get("title", "Untitled Deck"),
             "subject": data.get("subject", "General"),
