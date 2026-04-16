@@ -5,8 +5,9 @@ from openai import OpenAI, RateLimitError
 from config import settings
 from pdf_parser import ContentChunk
 
+# Initialize Groq client using the OpenAI SDK format
 client = OpenAI(
-    api_key=settings.grok_api_key,
+    api_key=settings.grok_api_key, # Ensure this matches your config.py/env
     base_url="https://api.groq.com/openai/v1",
 )
 
@@ -46,6 +47,8 @@ def call_groq_with_retry(messages: list, retries: int = 3, wait: int = 10) -> st
             response = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=messages,
+                # Force JSON output for better reliability with Groq
+                response_format={"type": "json_object"} 
             )
             return response.choices[0].message.content.strip()
         except RateLimitError:
@@ -98,7 +101,7 @@ async def generate_all_cards(chunks: list[ContentChunk]) -> list[dict]:
         cards = await generate_cards_for_chunk(chunk)
         all_cards.extend(cards)
         if i < len(chunks) - 1:
-            time.sleep(2)
+            time.sleep(2) # Prevent hitting Groq rate limits
     return all_cards
 
 
